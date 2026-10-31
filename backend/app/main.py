@@ -33,7 +33,8 @@ class SecurityHeaders(BaseHTTPMiddleware):
             content_type = request.headers.get("content-type", "").lower()
             if length > 6 * 1024 * 1024:
                 return JSONResponse({"code": "request_too_large", "message": "Request body is too large."}, status_code=413)
-            if length and not (content_type.startswith("application/json") or content_type.startswith("multipart/form-data")):
+            plain_handoff = request.url.path == "/api/guest-cart-handoff" and content_type.startswith("text/plain")
+            if length and not (content_type.startswith("application/json") or content_type.startswith("multipart/form-data") or plain_handoff):
                 return JSONResponse({"code": "unsupported_media_type", "message": "Use JSON or multipart form data."}, status_code=415)
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
