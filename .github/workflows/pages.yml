@@ -31,6 +31,12 @@ jobs:
           touch public/.nojekyll
           sed -i 's|/assets/|assets/|g; s|href="/"|href="./"|g' public/checkout.html public/admin.html
           printf "window.THREEDS_API_BASE='%s';\n" "${BACKEND_PUBLIC_URL%/}" > public/assets/config.js
+          if [ -n "$BACKEND_PUBLIC_URL" ]; then
+            mkdir -p public/admin public/checkout
+            sed "s|__TARGET_URL__|${BACKEND_PUBLIC_URL%/}/admin|g" deploy/pages-backend-redirect.html > public/admin.html
+            cp public/admin.html public/admin/index.html
+            sed "s|__TARGET_URL__|${BACKEND_PUBLIC_URL%/}/checkout|g" deploy/pages-backend-redirect.html > public/checkout/index.html
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
