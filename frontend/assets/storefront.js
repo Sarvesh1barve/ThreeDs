@@ -87,9 +87,54 @@
       if (p) add(p, `${document.querySelector('#giftName').value.trim() || 'Your name'} · ${document.querySelector('.person-button.active')?.dataset.person || 'You'}`);
     }, true);
   }
+  function bindCustomRequest() {
+    const form = document.querySelector('#customPrintForm');
+    if (!form) return;
+    const result = document.querySelector('#customRequestResult');
+    const submit = document.querySelector('#submitCustomRequest');
+    if (ON_STATIC_PAGES) {
+      submit.textContent = 'Open secure request form ↗';
+      result.textContent = 'Private model uploads open on the live Three D\'s order server so the file is never sent cross-site.';
+      const openSecureForm = event => {
+        event.preventDefault();
+        if (!API) return toast('The secure request form is temporarily unavailable. Please speak to the exhibition team.');
+        location.href = `${API}/?custom=1#custom`;
+      };
+      form.addEventListener('submit', openSecureForm);
+      form.addEventListener('focusin', openSecureForm, { once: true });
+      return;
+    }
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const file = document.querySelector('#modelFile')?.files[0];
+      if (file && file.size > 5 * 1024 * 1024) {
+        result.textContent = 'Please choose a model file no larger than 5 MB.';
+        result.className = 'request-help error-note';
+        return;
+      }
+      submit.disabled = true;
+      submit.textContent = 'Saving your request…';
+      result.className = 'request-help';
+      try {
+        const response = await fetch('/api/custom-print-requests', { method: 'POST', body: new FormData(form) });
+        const data = await response.json().catch(() => ({ message: 'Unexpected server response.' }));
+        if (!response.ok) throw new Error(data.message || data.detail?.message || 'Request could not be saved.');
+        result.textContent = `Saved as ${data.public_id}. The studio will review feasibility and pricing before confirming anything.`;
+        result.className = 'request-help success-note';
+        form.reset();
+        document.querySelector('#uploadText').textContent = 'Choose an STL, OBJ, 3MF, STEP or STP file · max 5 MB';
+      } catch (error) {
+        result.textContent = `${error.message} Please try again or speak to the exhibition team.`;
+        result.className = 'request-help error-note';
+      } finally {
+        submit.disabled = false;
+        submit.textContent = 'Save my request securely ↗';
+      }
+    });
+  }
   async function start() {
     document.head.insertAdjacentHTML('beforeend', '<style>.brand-control,.brand-settings{display:none!important}.product-data small{display:block;line-height:1.45;max-width:230px}.product-visual>img{transition:transform .6s cubic-bezier(.2,.8,.2,1)}.product-card:hover .product-visual>img{transform:scale(1.08) rotate(-2deg)}</style>');
-    loadCart(); bindLiveControls();
+    loadCart(); bindLiveControls(); bindCustomRequest();
     try {
       const [products, categories, settings] = ON_STATIC_PAGES ? [STATIC_PRODUCTS, STATIC_CATEGORIES.slice(1), null] : await Promise.all(['/api/products','/api/categories','/api/site-settings'].map(url => fetch(API + url).then(r => { if (!r.ok) throw Error(); return r.json(); })));
       state.products = products;

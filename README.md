@@ -2,7 +2,7 @@
 
 A real, mobile-first exhibition storefront and order desk for a small 3D-printing studio. The public design preserves the supplied `reference/three_ds_personal_studio_prototype.html`: its “Little things. Big feelings.” hero, lamp toggle, original SVG product illustrations, filters, quick views, cart motion, printer scroll scene, nameplate personalizer, editorial tone, and responsive behavior.
 
-The live ordering path is FastAPI + SQLAlchemy + SQLite in WAL mode. GitLab Pages is static-only and is **not** the primary checkout host.
+The live ordering path is FastAPI + SQLAlchemy + SQLite in WAL mode. GitHub Pages is the static catalogue; authenticated checkout, admin, and private uploads always move to the first-party FastAPI/ngrok origin.
 
 ## What works
 
@@ -13,6 +13,7 @@ The live ordering path is FastAPI + SQLAlchemy + SQLite in WAL mode. GitLab Page
 - Server-authoritative INR paise pricing, stock check, immutable order-line snapshots, transactional persistence, idempotency keys, and owner-only order/PDF access.
 - Checkout for pickup/delivery with NEW / UNPAID state. No card capture and no fictional payment success.
 - Protected admin catalogue, categories, price verification, photo/logo normalization, site theme/settings, search/status updates, manual POS/custom lines, audited price overrides, receipts, and order audit events.
+- Custom-print requests with material/finish/colour/quantity and optional validated STL, OBJ, 3MF, STEP or STP files. Model bytes are private SQLite BLOBs; only authenticated admins can list or download them.
 - Branded A4 order acknowledgement/proforma PDFs. They are never called tax invoices without legal/tax configuration.
 - Manual `wa.me` click-to-chat drafts. Opening a link does **not** send a message and cannot choose which WhatsApp account is logged in.
 - One-time, 10-minute, no-PII/no-price-authority guest-cart handoff for optional GitLab Pages → first-party backend checkout.
@@ -95,7 +96,7 @@ Current local verification on Python 3.13.2: **11 passed**; the only emitted war
 
 ## Data, backup, and recovery
 
-`DATA_DIR` contains the SQLite database and normalized uploads and is ignored by Git. SQLite uses foreign keys, WAL mode, an 8-second busy timeout, short transactions, and a versioned bootstrap record. This is appropriate for a small exhibition, not high-concurrency commerce.
+`DATA_DIR` contains the SQLite database and normalized product/logo uploads and is ignored by Git. The database also contains private custom-request model files, so backups must be protected as customer data. SQLite uses foreign keys, WAL mode, an 8-second busy timeout, short transactions, and a versioned bootstrap record. This is appropriate for a small exhibition, not high-concurrency commerce.
 
 Stop writes briefly and run:
 
@@ -105,7 +106,7 @@ powershell -File scripts/backup.ps1
 
 To recover, stop FastAPI, preserve the damaged `data/` directory, copy a chosen backup’s `data` contents back to the configured `DATA_DIR`, then start and check `/api/health`. Test recovery before the event. For schema changes after v1, add an explicit forward migration before changing the recorded version; `create_all` is bootstrap, not a general migration engine.
 
-## GitHub and GitLab Pages
+## GitHub Pages
 
 The repository is configured for GitHub origin `https://github.com/Sarvesh1barve/ThreeDs`. Push after reviewing:
 
@@ -115,14 +116,7 @@ git commit -m "Build Three D's exhibition store"
 git push -u origin main
 ```
 
-GitLab does not publish GitHub automatically. Create an empty GitLab project, then either configure a GitLab pull mirror from GitHub or add/push a remote:
-
-```powershell
-git remote add gitlab https://gitlab.com/YOUR_NAMESPACE/ThreeDs.git
-git push -u gitlab main
-```
-
-`.gitlab-ci.yml` runs tests and publishes `frontend/` as the Pages artifact. Add CI variable `BACKEND_PUBLIC_URL=https://YOUR-NGROK-HOST` and include the resulting Pages origin in backend `ALLOWED_ORIGINS`. Static Pages fetches public catalogue/settings cross-origin; Checkout links create a short-lived one-time cart handoff and top-level navigate to the backend HTTPS origin, where login cookies are first-party. The token contains only product IDs, quantities, and personalization; prices are recalculated later. If CORS, ngrok interstitial, or quota blocks this path, the UI reports the failure: use the Mode A QR instead. Do not use Pages for `/admin`.
+`.github/workflows/pages.yml` publishes `frontend/`. Set the repository variable `BACKEND_PUBLIC_URL` to the HTTPS ngrok host. The Pages catalogue uses a deployment snapshot to avoid ngrok's cross-origin free-tier interstitial. Checkout transfers only product slugs and quantities in a top-level URL-safe handoff; the backend loads live products and recalculates every price. `/admin`, `/checkout`, and private custom-file submission use top-level navigation to the first-party backend origin, so authentication and uploads do not depend on third-party cookies or cross-origin form requests.
 
 ## Security posture and honest limitations
 
@@ -132,7 +126,7 @@ git push -u gitlab main
 - SQLite has bounded write concurrency; move to managed PostgreSQL for sustained traffic or multiple workers. Run one Uvicorn worker with SQLite.
 - There is no OTP, password reset provider, real payment gateway, tax/GST engine, shipping integration, automatic WhatsApp sender, malware scanner, or third-party security audit. Those features are unavailable rather than simulated.
 - Admin re-authentication before every sensitive change and full financial revision/credit-note workflows are not included. Order totals remain immutable; status/payment changes are audited.
-- Custom 3D model files are intentionally not uploaded by the public prototype. The brief stays on-device and can be copied for direct discussion.
+- Custom 3D model validation is structural, not antivirus scanning. Files are capped at 5 MB and admin downloads are forced as attachments, but define a deletion/retention policy and scan files in an isolated service before long-term public use.
 - Before longer-term public use, commission professional security/privacy/legal review, add monitored backups and retention/deletion policies, and validate Indian tax/invoicing obligations.
 
 No secrets, customer data, generated database, uploads, backups, or ngrok tokens belong in Git.

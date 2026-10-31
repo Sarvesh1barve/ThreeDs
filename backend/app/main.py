@@ -7,7 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from .config import get_settings
 from .db import SessionLocal
-from .routers import admin, auth, orders, public
+from .routers import admin, auth, custom, orders, public
 from .services.seed import bootstrap
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -52,6 +52,7 @@ app.add_middleware(SecurityHeaders)
 app.include_router(public.router)
 app.include_router(auth.router)
 app.include_router(orders.router)
+app.include_router(custom.router)
 app.include_router(admin.router)
 
 

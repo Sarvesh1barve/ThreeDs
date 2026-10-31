@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from uuid import uuid4
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .db import Base
 
@@ -150,4 +150,25 @@ class GuestCartHandoff(Base):
     payload: Mapped[str] = mapped_column(Text)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class CustomPrintRequest(Base):
+    __tablename__ = "custom_print_requests"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    public_id: Mapped[str] = mapped_column(String(32), unique=True, index=True)
+    full_name: Mapped[str] = mapped_column(String(100))
+    phone: Mapped[str] = mapped_column(String(16), index=True)
+    email: Mapped[str | None] = mapped_column(String(254), nullable=True)
+    idea: Mapped[str] = mapped_column(Text)
+    material: Mapped[str] = mapped_column(String(20))
+    finish: Mapped[str] = mapped_column(String(30))
+    color: Mapped[str] = mapped_column(String(40))
+    quantity: Mapped[int] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(24), default="NEW", index=True)
+    original_filename: Mapped[str | None] = mapped_column(String(140), nullable=True)
+    file_content_type: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    file_size: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    file_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    file_data: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
