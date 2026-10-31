@@ -81,7 +81,8 @@
     document.head.insertAdjacentHTML('beforeend', '<style>.brand-control,.brand-settings{display:none!important}.product-data small{display:block;line-height:1.45;max-width:230px}.product-visual>img{transition:transform .6s cubic-bezier(.2,.8,.2,1)}.product-card:hover .product-visual>img{transform:scale(1.08) rotate(-2deg)}</style>');
     loadCart(); bindLiveControls();
     try {
-      const [products, categories, settings] = await Promise.all(['/api/products','/api/categories','/api/site-settings'].map(url => fetch(API + url).then(r => { if (!r.ok) throw Error(); return r.json(); })));
+      const apiHeaders = API ? { 'ngrok-skip-browser-warning': 'true' } : {};
+      const [products, categories, settings] = await Promise.all(['/api/products','/api/categories','/api/site-settings'].map(url => fetch(API + url, { headers: apiHeaders }).then(r => { if (!r.ok) throw Error(); return r.json(); })));
       state.products = products;
       const filters = document.querySelector('#filters'); filters.textContent = '';
       [{ slug: 'all', name: 'Everything ✳' }, ...categories].forEach((c, i) => { const b = document.createElement('button'); b.className = `chip${i ? '' : ' active'}`; b.textContent = c.name; b.addEventListener('click', () => { filters.querySelectorAll('.chip').forEach(x => x.classList.toggle('active', x === b)); document.querySelectorAll('.product-card').forEach(card => card.classList.toggle('hidden', c.slug !== 'all' && card.dataset.cat !== c.slug)); }); filters.append(b); });
@@ -89,7 +90,7 @@
       if (settings.logo_url) { const img = document.querySelector('#brandImage'); img.src = settings.logo_url; img.style.display = 'block'; document.querySelector('#brandFallback').style.display = 'none'; }
       const note = document.querySelector('.topnote'); if (note) note.textContent = settings.banner;
       renderCatalog(); renderCart();
-      if (API) document.querySelectorAll('a[href="checkout.html"]').forEach(link => link.addEventListener('click', async event => { event.preventDefault(); try { const response = await fetch(API + '/api/guest-cart-handoff', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: state.cart }) }); if (!response.ok) throw Error(); const handoff = await response.json(); location.href = `${API}/checkout?handoff=${encodeURIComponent(handoff.handoff)}`; } catch { toast('Cross-site checkout is unavailable. Please open the exhibition QR store.'); } }));
+      if (API) document.querySelectorAll('a[href="checkout.html"]').forEach(link => link.addEventListener('click', async event => { event.preventDefault(); try { const response = await fetch(API + '/api/guest-cart-handoff', { method: 'POST', headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' }, body: JSON.stringify({ items: state.cart }) }); if (!response.ok) throw Error(); const handoff = await response.json(); location.href = `${API}/checkout?handoff=${encodeURIComponent(handoff.handoff)}`; } catch { toast('Cross-site checkout is unavailable. Please open the exhibition QR store.'); } }));
     } catch { state.products = []; renderCart(); toast('Ordering temporarily unavailable — please speak to our exhibition team.'); }
   }
   start();

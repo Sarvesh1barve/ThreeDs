@@ -23,7 +23,7 @@ async def lifespan(app):
 
 app = FastAPI(title="Three D's Exhibition Store", version="1.0.0", lifespan=lifespan, docs_url=None, redoc_url=None)
 cfg = get_settings()
-app.add_middleware(CORSMiddleware, allow_origins=list(cfg.origins), allow_credentials=True, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"], allow_headers=["Content-Type", "X-CSRF-Token"])
+app.add_middleware(CORSMiddleware, allow_origins=list(cfg.origins), allow_credentials=True, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"], allow_headers=["Content-Type", "X-CSRF-Token", "ngrok-skip-browser-warning"])
 
 
 class SecurityHeaders(BaseHTTPMiddleware):
