@@ -1,0 +1,53 @@
+THREE D'S — PERSONAL STUDIO WEBSITE PROTOTYPE
+=============================================
+
+MAIN FILE
+  three_ds_personal_studio_prototype.html
+
+QUICK START
+  1. Unzip the download.
+  2. Open three_ds_personal_studio_prototype.html with Chrome, Edge or Safari.
+  3. Scroll slowly through the "From a thought to a thing" printing animation.
+  4. Try the lamp light toggle, product categories, product quick views,
+     add-to-bag animations, nameplate personalizer and custom-print brief.
+  5. Use the floating "Logo & colours" button at bottom left to select the
+     ORIGINAL Three D's logo and adjust the primary brand accent colour.
+
+DESIGN DIRECTION
+  Friendly boutique studio, not a cold manufacturing catalogue.
+  Core idea: 'Little things. Big feelings.'
+  Illustrated 3D-print objects, soft lavender and ivory, organic detailing,
+  gallery-like product cards and intimate gift-led storytelling.
+
+INSTAGRAM / BRAND ASSET LIMITATION
+  The official Instagram profile https://www.instagram.com/threeds_india/
+  is inaccessible to automated retrieval in this environment. Thus the
+  original trademark/logo and exact brand colours cannot be verified.
+  The page uses a provisional badge by default, may attempt to display a
+  public profile avatar in browsers where it is available, and supports
+  uploading the genuine brand logo in the local UI. Uploading a logo
+  replaces the placeholder and suggests an accent colour locally.
+  No assertion is made that the placeholder is the actual Three D's logo.
+
+DEMO FUNCTIONALITY
+  - Desktop and mobile layouts; smooth reveal and hover transitions.
+  - 6 illustrated products with category filters.
+  - Interactive bag: add, quantity, removal, subtotal and local persistence.
+  - Sample product detail modal.
+  - Scroll-driven FDM printer simulation, with a smoother eased transition.
+  - Nameplate personalization by name, recipient and colour.
+  - Custom 3D printing brief; accepts a local file selection; no uploads.
+  - Instagram links to the real account.
+  - Logo and primary-colour customization with local persistence.
+
+NOT A LIVE SHOP
+  Product concepts and prices are illustrative, not sourced from the
+  Three D's catalogue. There are no payments, inventory or actual orders.
+  No data is uploaded from the custom-print demo. Contact details,
+  real catalogue, genuine brand assets, checkout integrations and product
+  photography must be supplied before any production launch.
+
+TECHNOLOGY
+  One standalone HTML file with inline CSS, JS and self-contained vector
+  illustrations. Optional Google font and public avatar requests enhance
+  appearance where available. No server, build step, or API key required.

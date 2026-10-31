@@ -1,0 +1,17 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.playwright/
+.playwright-cli/
+tests/.data/
+data/
+uploads/
+*.db
+*.sqlite*
+THREEDS_CODEX_HANDOFF.zip
+THREEDS_CODEX_HANDOFF/
+README_FIRST.txt
+.DS_Store
+
